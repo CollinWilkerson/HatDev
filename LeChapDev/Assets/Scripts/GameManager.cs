@@ -53,4 +53,38 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         playerScript.photonView.RPC("Initialize", RpcTarget.All, PhotonNetwork.LocalPlayer); //runs the Initialize function in the player script
     }
+
+    public PlayerController GetPlayer(int playerId)
+    {
+        //gets the first x that has the id attribute of playerId
+        return players.First(x => x.id == playerId);
+    }
+
+    public PlayerController GetPlayer(GameObject playerObject)
+    {
+        return players.First(x => x.gameObject == playerObject);
+    }
+
+    [PunRPC]
+    public void GiveHat(int playerID, bool initialGive)
+    {
+        //take hat
+        if (!initialGive)
+        {
+            GetPlayer(playerWithHat).SetHat(false);
+        }
+    }
+
+    public bool CanGetHat()
+    {
+        //timer doesn't reset between pickups so the hatPickupTime allows us to measure when the invincibility has expired.
+        if (Time.time > hatPickupTime + invincibleDuration)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }

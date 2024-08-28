@@ -59,10 +59,40 @@ public class PlayerController : MonoBehaviourPunCallbacks
         GameManager.instance.players[id - 1] = this; //sets the game manager to an index in relation to its Photon id
 
         //photonView is part of the MonoBehaviorPun extension so i changed that
-        //Also why would i want to make my client kenimatic another tutorial whoopsie
+        //Also why would i want to make my client kenimatic? another tutorial whoopsie
         if (!photonView.IsMine)
         {
             rig.isKinematic = true; // game physics should only affect the clients individually
+        }
+
+        //Gives player 1 the hat CHANGE IN PR
+        if (id==1)
+        {
+            GameManager.instance.GiveHat(id, true);
+        }
+    }
+
+    public void SetHat(bool hasHat)
+    {
+        hatObject.SetActive(hasHat);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            if (GameManager.instance.GetPlayer(collision.gameObject).id == GameManager.instance.playerWithHat)
+            {
+                if (GameManager.instance.CanGetHat())
+                {
+                    GameManager.instance.photonView.RPC("GiveHat", RpcTarget.All, id, false);
+                }
+            }
         }
     }
 }
