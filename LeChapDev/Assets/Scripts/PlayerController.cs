@@ -59,7 +59,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         GameManager.instance.players[id - 1] = this; //sets the game manager to an index in relation to its Photon id
 
         //photonView is part of the MonoBehaviorPun extension so i changed that
-        if (photonView.IsMine)
+        if (!photonView.IsMine)
         {
             rig.isKinematic = true; // game physics should only affect the clients individually
         }
