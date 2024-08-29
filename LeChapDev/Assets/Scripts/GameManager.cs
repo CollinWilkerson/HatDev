@@ -71,8 +71,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         //take hat
         if (!initialGive)
         {
-            GetPlayer(playerWithHat).SetHat(false);
+            GetPlayer(playerWithHat).SetHat(false); //
         }
+
+        playerWithHat = playerID; //defines which player has the hat
+        GetPlayer(playerID).SetHat(true); //activates hat for player who picked it up
+        hatPickupTime = Time.time; //sets the time picked up to the current time
     }
 
     public bool CanGetHat()
@@ -86,5 +90,21 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             return false;
         }
+    }
+
+    private void WinGame (int playerId)
+    {
+        gameEnded = true;
+        PlayerController player = GetPlayer(playerId);
+        //UI shows whos won
+        GameUI.instance.SetWinText(player.photonPlayer.NickName);
+
+        Invoke("GoBackToMenu", 3.0f);
+    }
+
+    private void GoBackToMenu()
+    {
+        PhotonNetwork.LeaveRoom();
+        NetworkManager.instance.ChangeScene("Menu");
     }
 }

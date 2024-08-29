@@ -4,7 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class PlayerController : MonoBehaviourPunCallbacks
+public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 {
     [HideInInspector]
     public int id;
@@ -18,13 +18,36 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public Rigidbody rig;
     public Player photonPlayer;
 
+    //pretty sure this wasn't in the PDF
+    public float curHatTime = 0;
+
     private void Update()
     {
-        Move();
-
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (photonView.IsMine)
         {
-            TryJump();
+            //standard jump and move controls
+            Move();
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                TryJump();
+            }
+
+            //time hat is on
+            if (hatObject.activeInHierarchy)
+            {
+                curHatTime += Time.deltaTime;
+            }
+        }
+
+        //Master client checks for all
+        if (PhotonNetwork.IsMasterClient)
+        {
+            if(curHatTime >= GameManager.instance.timeToWin && !GameManager.instance.gameEnded)
+            {
+                GameManager.instance.gameEnded = true;
+                GameManager.instance.photonView.RPC("WinGame", RpcTarget.All, id);
+            }
         }
     }
 
@@ -35,7 +58,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         float z = Input.GetAxis("Vertical") * moveSpeed;
 
         //establishes a velocity based on the player inputs
-        rig.velocity = new Vector3(x, rig.velocity.y, z);
+        rig.linearVelocity = new Vector3(x, rig.linearVelocity.y, z);
     }
 
     private void TryJump()
@@ -52,9 +75,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [PunRPC]
     public void Initialize(Player player)
     {
+        //helps to distinguish players
         photonPlayer = player;
         id = player.ActorNumber;
-        Debug.Log(player.ActorNumber);
+        //Debug.Log(player.ActorNumber);
 
         GameManager.instance.players[id - 1] = this; //sets the game manager to an index in relation to its Photon id
 
@@ -93,6 +117,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     GameManager.instance.photonView.RPC("GiveHat", RpcTarget.All, id, false);
                 }
             }
+        }
+    }
+
+    //sends and recives data
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(curHatTime);
+        }
+        else if (stream.IsReading)
+        {
+            curHatTime = (float)stream.ReceiveNext();
         }
     }
 }
