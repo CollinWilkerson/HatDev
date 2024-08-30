@@ -53,9 +53,11 @@ public class GameUI : MonoBehaviour
 
     private void UpdatePlayerUI()
     {
-        //for every player
-        for (int x = 0; x < playerContainers.Length; x++)
+        //for every player PhotonNetwork.PlayerList is the apropriate length
+        for (int x = 0; x < PhotonNetwork.PlayerList.Length ; x++)
         {
+            //Debug.Log(x);
+            //Debug.Log("length: " + playerContainers.Length);
             //only updates for real player
             if (GameManager.instance.players[x] != null)
             {
@@ -68,7 +70,7 @@ public class GameUI : MonoBehaviour
     public void SetWinText (string winnerName)
     {
         winText.gameObject.SetActive(true);
-        winText.text = winnerName + "wins!";
+        winText.text = winnerName + " wins!";
     }
 }
 

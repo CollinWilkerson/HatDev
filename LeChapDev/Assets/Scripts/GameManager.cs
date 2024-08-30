@@ -92,6 +92,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
+    [PunRPC]
     private void WinGame (int playerId)
     {
         gameEnded = true;

@@ -43,8 +43,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         //Master client checks for all
         if (PhotonNetwork.IsMasterClient)
         {
+            //timeToWin is just a set number, set in GameManager
+            //curHatTime is a float
             if(curHatTime >= GameManager.instance.timeToWin && !GameManager.instance.gameEnded)
             {
+                //Debug.Log("Game Won");
                 GameManager.instance.gameEnded = true;
                 GameManager.instance.photonView.RPC("WinGame", RpcTarget.All, id);
             }
