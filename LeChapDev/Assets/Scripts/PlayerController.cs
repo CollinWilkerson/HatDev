@@ -14,11 +14,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     public float jumpForce;
     public GameObject hatObject;
 
-    //[HideInInspector]
+    [Header("Components")]
     public Rigidbody rig;
     public Player photonPlayer;
 
-    //pretty sure this wasn't in the PDF
+    [SerializeField]
     public float curHatTime = 0;
 
     private void Update()
@@ -36,7 +36,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             //time hat is on
             if (hatObject.activeInHierarchy)
             {
-                curHatTime += Time.deltaTime;
+                curHatTime += Time.deltaTime; //This is where the player gains hat time. Comminicated to other clients in OnPhotonSerializeView
             }
         }
 
@@ -123,15 +123,17 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    //sends and recives data
+    //sends and recives the Hat time data
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
         {
+            Debug.Log("Write");
             stream.SendNext(curHatTime);
         }
-        else if (stream.IsReading)
+        else //if (stream.IsReading)
         {
+            Debug.Log("Read");
             curHatTime = (float)stream.ReceiveNext();
         }
     }
